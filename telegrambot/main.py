@@ -2,6 +2,8 @@ from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filte
 from flask import Flask, request
 import requests, logging, asyncio, os
 from threading import Thread
+from telegram import Update
+
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
@@ -40,9 +42,8 @@ bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_messa
 @app.route("/webhook", methods=["POST"])
 def webhook():
     update_data = request.get_json(force=True)
-    bot_app.update_queue.put_nowait(
-        bot_app.bot._parse_update(update_data, bot_app.bot)
-    )
+    update = Update.de_json(update_data, bot_app.bot)
+    asyncio.create_task(bot_app.process_update(update))
     return "ok"
 
 @app.route("/")
@@ -52,7 +53,7 @@ def index():
 async def telegram_main():
     await bot_app.initialize()
     await bot_app.start()
-    # ❗ ТОЛЬКО set_webhook, без polling
+    # ТОЛЬКО set_webhook, без polling
     await bot_app.bot.set_webhook(url=WEBHOOK_URL)
     print(f"Webhook установлен: {WEBHOOK_URL}")
     # не вызывай updater.start_polling()
