@@ -5,7 +5,7 @@ from threading import Thread
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL")  # ← должен быть https://botai-production-bf8e.up.railway.app/webhook
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
 API_URL = "https://router.huggingface.co/novita/v3/openai/chat/completions"
 MODEL_NAME = "deepseek/deepseek-r1-turbo"
@@ -52,10 +52,10 @@ def index():
 async def telegram_main():
     await bot_app.initialize()
     await bot_app.start()
-    # Устанавливаем webhook
+    # ❗ ТОЛЬКО set_webhook, без polling
     await bot_app.bot.set_webhook(url=WEBHOOK_URL)
     print(f"Webhook установлен: {WEBHOOK_URL}")
-    await bot_app.updater.start_polling()  # предотвращает остановку
+    # не вызывай updater.start_polling()
 
 def run_flask():
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
