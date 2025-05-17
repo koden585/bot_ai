@@ -56,6 +56,14 @@ async def main():
     print(f"Webhook установлен: {webhook_url}")
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    # Запускаем бота и Flask одновременно
     loop.create_task(main())
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))
+    
+    # Flask запускаем в отдельном потоке
+    from threading import Thread
+    Thread(target=lambda: app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 3000)))).start()
+
+    loop.run_forever()
