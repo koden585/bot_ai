@@ -56,7 +56,7 @@ async def telegram_main():
     # ТОЛЬКО set_webhook, без polling
     await bot_app.bot.set_webhook(url=WEBHOOK_URL)
     print(f"Webhook установлен: {WEBHOOK_URL}")
-    # не вызывай updater.start_polling()
+    # не вызывать updater.start_polling()
 
 def run_flask():
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
